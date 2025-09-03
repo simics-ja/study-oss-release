@@ -1,6 +1,7 @@
 # OSS Release Study Repository
 
 このリポジトリは、GitHub上でOSSをリリースする方法を学習するための実践的なサンプル集です。
+このリポジトリのコードはほぼAI生成です。
 
 ## 📚 学習内容
 
@@ -125,12 +126,3 @@ git push origin release-1.0.0
     ├── go-release.yml
     └── release-all.yml
 ```
-
-## 📄 ライセンス
-
-MIT License
-
-## 🤝 コントリビューション
-
-学習用リポジトリのため、プルリクエストは受け付けていません。
-フォークして自由に実験してください。
