@@ -1,0 +1,5 @@
+test.js
+.git
+.gitignore
+*.log
+node_modules/

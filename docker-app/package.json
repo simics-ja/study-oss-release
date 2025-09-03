@@ -1,0 +1,14 @@
+{
+  "name": "oss-release-demo-app",
+  "version": "1.0.0",
+  "description": "Demo application for learning Docker image release to GitHub Container Registry",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Study OSS Release",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
