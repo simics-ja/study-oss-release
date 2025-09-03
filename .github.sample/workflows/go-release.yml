@@ -1,0 +1,86 @@
+name: Release Go Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+      
+      - name: Build binaries
+        run: |
+          cd go-cli
+          make build-all
+      
+      - name: Create checksums
+        run: |
+          cd go-cli/dist
+          sha256sum * > checksums.txt
+      
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## OSS Release Demo CLI ${{ steps.version.outputs.version }}
+            
+            ### Installation
+            
+            Download the appropriate binary for your platform:
+            
+            - **macOS Intel**: `oss-release-demo-cli-darwin-amd64`
+            - **macOS Apple Silicon**: `oss-release-demo-cli-darwin-arm64`
+            - **Linux AMD64**: `oss-release-demo-cli-linux-amd64`
+            - **Linux ARM64**: `oss-release-demo-cli-linux-arm64`
+            - **Windows**: `oss-release-demo-cli-windows-amd64.exe`
+            
+            ### Verify checksums
+            
+            ```bash
+            sha256sum -c checksums.txt
+            ```
+          draft: false
+          prerelease: false
+      
+      - name: Upload Release Assets
+        run: |
+          for file in go-cli/dist/*; do
+            asset_name=$(basename "$file")
+            echo "Uploading $asset_name..."
+            gh release upload ${{ steps.version.outputs.version }} "$file" \
+              --repo ${{ github.repository }}
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
